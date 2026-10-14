@@ -10,12 +10,42 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CaiDatRouteImport } from './routes/cai-dat'
+import { Route as ThongBaoRouteImport } from './routes/thong-bao'
+import { Route as TienDoRouteImport } from './routes/tien-do'
+import { Route as BaiTapIndexRouteImport } from './routes/bai-tap.index'
+import { Route as BaiTapSlugRouteImport } from './routes/bai-tap.$slug'
 import { Route as LichTapIndexRouteImport } from './routes/lich-tap.index'
 import { Route as LichTapIdRouteImport } from './routes/lich-tap.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaiDatRoute = CaiDatRouteImport.update({
+  id: '/cai-dat',
+  path: '/cai-dat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThongBaoRoute = ThongBaoRouteImport.update({
+  id: '/thong-bao',
+  path: '/thong-bao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TienDoRoute = TienDoRouteImport.update({
+  id: '/tien-do',
+  path: '/tien-do',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BaiTapIndexRoute = BaiTapIndexRouteImport.update({
+  id: '/bai-tap/',
+  path: '/bai-tap/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BaiTapSlugRoute = BaiTapSlugRouteImport.update({
+  id: '/bai-tap/$slug',
+  path: '/bai-tap/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LichTapIndexRoute = LichTapIndexRouteImport.update({
@@ -31,31 +61,76 @@ const LichTapIdRoute = LichTapIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cai-dat': typeof CaiDatRoute
+  '/thong-bao': typeof ThongBaoRoute
+  '/tien-do': typeof TienDoRoute
+  '/bai-tap/$slug': typeof BaiTapSlugRoute
   '/lich-tap/$id': typeof LichTapIdRoute
+  '/bai-tap/': typeof BaiTapIndexRoute
   '/lich-tap/': typeof LichTapIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cai-dat': typeof CaiDatRoute
+  '/thong-bao': typeof ThongBaoRoute
+  '/tien-do': typeof TienDoRoute
+  '/bai-tap/$slug': typeof BaiTapSlugRoute
   '/lich-tap/$id': typeof LichTapIdRoute
+  '/bai-tap': typeof BaiTapIndexRoute
   '/lich-tap': typeof LichTapIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cai-dat': typeof CaiDatRoute
+  '/thong-bao': typeof ThongBaoRoute
+  '/tien-do': typeof TienDoRoute
+  '/bai-tap/$slug': typeof BaiTapSlugRoute
   '/lich-tap/$id': typeof LichTapIdRoute
+  '/bai-tap/': typeof BaiTapIndexRoute
   '/lich-tap/': typeof LichTapIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/lich-tap/$id' | '/lich-tap/'
+  fullPaths:
+    | '/'
+    | '/cai-dat'
+    | '/thong-bao'
+    | '/tien-do'
+    | '/bai-tap/$slug'
+    | '/lich-tap/$id'
+    | '/bai-tap/'
+    | '/lich-tap/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/lich-tap/$id' | '/lich-tap'
-  id: '__root__' | '/' | '/lich-tap/$id' | '/lich-tap/'
+  to:
+    | '/'
+    | '/cai-dat'
+    | '/thong-bao'
+    | '/tien-do'
+    | '/bai-tap/$slug'
+    | '/lich-tap/$id'
+    | '/bai-tap'
+    | '/lich-tap'
+  id:
+    | '__root__'
+    | '/'
+    | '/cai-dat'
+    | '/thong-bao'
+    | '/tien-do'
+    | '/bai-tap/$slug'
+    | '/lich-tap/$id'
+    | '/bai-tap/'
+    | '/lich-tap/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CaiDatRoute: typeof CaiDatRoute
+  ThongBaoRoute: typeof ThongBaoRoute
+  TienDoRoute: typeof TienDoRoute
+  BaiTapSlugRoute: typeof BaiTapSlugRoute
   LichTapIdRoute: typeof LichTapIdRoute
+  BaiTapIndexRoute: typeof BaiTapIndexRoute
   LichTapIndexRoute: typeof LichTapIndexRoute
 }
 
@@ -66,6 +141,41 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cai-dat': {
+      id: '/cai-dat'
+      path: '/cai-dat'
+      fullPath: '/cai-dat'
+      preLoaderRoute: typeof CaiDatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/thong-bao': {
+      id: '/thong-bao'
+      path: '/thong-bao'
+      fullPath: '/thong-bao'
+      preLoaderRoute: typeof ThongBaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tien-do': {
+      id: '/tien-do'
+      path: '/tien-do'
+      fullPath: '/tien-do'
+      preLoaderRoute: typeof TienDoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bai-tap/': {
+      id: '/bai-tap/'
+      path: '/bai-tap'
+      fullPath: '/bai-tap/'
+      preLoaderRoute: typeof BaiTapIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bai-tap/$slug': {
+      id: '/bai-tap/$slug'
+      path: '/bai-tap/$slug'
+      fullPath: '/bai-tap/$slug'
+      preLoaderRoute: typeof BaiTapSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lich-tap/': {
@@ -87,7 +197,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CaiDatRoute: CaiDatRoute,
+  ThongBaoRoute: ThongBaoRoute,
+  TienDoRoute: TienDoRoute,
+  BaiTapSlugRoute: BaiTapSlugRoute,
   LichTapIdRoute: LichTapIdRoute,
+  BaiTapIndexRoute: BaiTapIndexRoute,
   LichTapIndexRoute: LichTapIndexRoute,
 }
 export const routeTree = rootRouteImport
