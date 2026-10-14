@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LichTapIndexRouteImport } from './routes/lich-tap.index'
+import { Route as LichTapIdRouteImport } from './routes/lich-tap.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LichTapIndexRoute = LichTapIndexRouteImport.update({
+  id: '/lich-tap/',
+  path: '/lich-tap/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LichTapIdRoute = LichTapIdRouteImport.update({
+  id: '/lich-tap/$id',
+  path: '/lich-tap/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/lich-tap/$id': typeof LichTapIdRoute
+  '/lich-tap/': typeof LichTapIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/lich-tap/$id': typeof LichTapIdRoute
+  '/lich-tap': typeof LichTapIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/lich-tap/$id': typeof LichTapIdRoute
+  '/lich-tap/': typeof LichTapIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/lich-tap/$id' | '/lich-tap/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/lich-tap/$id' | '/lich-tap'
+  id: '__root__' | '/' | '/lich-tap/$id' | '/lich-tap/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LichTapIdRoute: typeof LichTapIdRoute
+  LichTapIndexRoute: typeof LichTapIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lich-tap/': {
+      id: '/lich-tap/'
+      path: '/lich-tap'
+      fullPath: '/lich-tap/'
+      preLoaderRoute: typeof LichTapIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lich-tap/$id': {
+      id: '/lich-tap/$id'
+      path: '/lich-tap/$id'
+      fullPath: '/lich-tap/$id'
+      preLoaderRoute: typeof LichTapIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LichTapIdRoute: LichTapIdRoute,
+  LichTapIndexRoute: LichTapIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
