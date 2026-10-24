@@ -62,7 +62,7 @@ function SettingsPage() {
       await navigator.serviceWorker.ready;
       const sub = (await reg.pushManager.getSubscription()) ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) }));
       const j = sub.toJSON();
-      await save({ data: { endpoint: j.endpoint!, p256dh: j.keys!.p256dh, auth: j.keys!.auth } });
+      await save({ data: { endpoint: j.endpoint!, p256dh: j.keys!["p256dh"], auth: j.keys!["auth"] } });
       setStatus("Đã bật thông báo trên thiết bị này.");
       toast.success("Đã bật thông báo.");
     } catch (e) {

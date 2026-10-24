@@ -38,7 +38,7 @@ function Progress() {
 
   // Month calendar for current VN month
   const today = vnDateStr();
-  const [y, m] = today.split("-").map(Number);
+  const [y = 1970, m = 1] = today.split("-").map(Number);
   const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
   const lead = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
 

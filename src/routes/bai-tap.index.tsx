@@ -31,7 +31,7 @@ function Library() {
     <div>
       <PageHeader title="Bài tập" sub="Giáo án Push / Pull / Legs" />
       <div className="mb-4 flex flex-wrap gap-2">
-        {[["ALL", "Tất cả"], ["PUSH", "PUSH"], ["PULL", "PULL"], ["LEGS", "LEGS"]].map(([v, l]) => (
+        {([["ALL", "Tất cả"], ["PUSH", "PUSH"], ["PULL", "PULL"], ["LEGS", "LEGS"]] as const).map(([v, l]) => (
           <Button key={v} size="sm" variant={cat === v ? "default" : "secondary"} onClick={() => setCat(v)}>{l}</Button>
         ))}
       </div>

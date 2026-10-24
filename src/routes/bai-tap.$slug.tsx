@@ -99,7 +99,7 @@ function Detail() {
             </ResponsiveContainer>
           </div>
         )}
-        {view === me && <WeightForm exerciseId={e.id} convention={WEIGHT_CONVENTION[e.weight_type]} assisted={e.weight_type === "assisted"} />}
+        {view === me && <WeightForm exerciseId={e.id} convention={WEIGHT_CONVENTION[e.weight_type] ?? ""} assisted={e.weight_type === "assisted"} />}
         <History entries={entries} editable={view === me} />
       </section>
     </div>
