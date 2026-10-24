@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AttendanceBadge, Empty, errMsg, ErrorBox, LoadingBlock, StatusBadge } from "@/components/gym/shared";
-import { MEMBER_NAME, MEMBERS, type Attendance, type SessionStatus } from "@/lib/domain";
+import { MEMBER_NAME, MEMBERS, WEIGHT_CONVENTION, type Attendance, type SessionStatus } from "@/lib/domain";
 import { addWorkoutLog, cancelSession, completeSession, deleteSession, respondAttendance } from "@/lib/gym.functions";
 import { useMember } from "@/lib/member-context";
 import { exercisesQuery, sessionLogsQuery, sessionQuery } from "@/lib/queries";
@@ -168,7 +168,10 @@ function TrainingLog({ sessionId }: { sessionId: string }) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!f.exercise_id) return toast.error("Hãy chọn bài tập.");
+    if (!f.exercise_id) {
+      toast.error("Hãy chọn bài tập.");
+      return;
+    }
     setSaving(true);
     try {
       await add({
@@ -218,7 +221,6 @@ function TrainingLog({ sessionId }: { sessionId: string }) {
   );
 }
 
-import { WEIGHT_CONVENTION } from "@/lib/domain";
 function weightHint(t: string) {
   return WEIGHT_CONVENTION[t];
 }

@@ -81,7 +81,6 @@ export const respondAttendance = createServerFn({ method: "POST" })
     const a = await admin();
     const s = await loadActiveSession(a, data.id);
     if (s.status !== "scheduled") throw new Error("Chỉ phản hồi được buổi tập sắp diễn ra.");
-    const col = data.actor === "thong" ? "thong_status" : "thuan_status";
     const patch = data.actor === "thong" ? { thong_status: data.response as string } : { thuan_status: data.response as string };
     const { error } = await a.from("gym_sessions").update(patch).eq("id", data.id);
     if (error) throw new Error("Không cập nhật được trạng thái.");
@@ -136,11 +135,11 @@ export const deleteSession = createServerFn({ method: "POST" })
 
 const weightFields = {
   weight_kg: z.number().min(0).max(1000),
-  bodyweight_kg: z.number().min(20).max(300).nullable().optional(),
-  sets: z.number().int().min(1).max(50).nullable().optional(),
-  reps: z.number().int().min(1).max(200).nullable().optional(),
-  rpe: z.number().int().min(1).max(10).nullable().optional(),
-  notes: z.string().trim().max(500).nullable().optional(),
+  bodyweight_kg: z.number().min(20).max(300).nullable().default(null),
+  sets: z.number().int().min(1).max(50).nullable().default(null),
+  reps: z.number().int().min(1).max(200).nullable().default(null),
+  rpe: z.number().int().min(1).max(10).nullable().default(null),
+  notes: z.string().trim().max(500).nullable().default(null),
 };
 
 export const addWeightEntry = createServerFn({ method: "POST" })
@@ -186,7 +185,7 @@ export const addWorkoutLog = createServerFn({ method: "POST" })
         weight_kg: z.number().min(0).max(1000),
         sets: z.number().int().min(1).max(50),
         reps: z.number().int().min(1).max(200),
-        notes: z.string().trim().max(500).nullable().optional(),
+        notes: z.string().trim().max(500).nullable().default(null),
       })
       .parse(d),
   )
