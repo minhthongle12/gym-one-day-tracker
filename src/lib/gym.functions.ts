@@ -82,7 +82,8 @@ export const respondAttendance = createServerFn({ method: "POST" })
     const s = await loadActiveSession(a, data.id);
     if (s.status !== "scheduled") throw new Error("Chỉ phản hồi được buổi tập sắp diễn ra.");
     const col = data.actor === "thong" ? "thong_status" : "thuan_status";
-    const { error } = await a.from("gym_sessions").update({ [col]: data.response }).eq("id", data.id);
+    const patch = data.actor === "thong" ? { thong_status: data.response as string } : { thuan_status: data.response as string };
+    const { error } = await a.from("gym_sessions").update(patch).eq("id", data.id);
     if (error) throw new Error("Không cập nhật được trạng thái.");
     await audit(a, `session.${data.response === "confirmed" ? "confirm" : "decline"}`, data.actor, "gym_session", data.id);
     return { ok: true };
