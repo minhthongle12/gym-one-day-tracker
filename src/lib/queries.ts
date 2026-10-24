@@ -8,7 +8,7 @@ export type WeightEntry = Database["public"]["Tables"]["exercise_weight_history"
 export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 export type WorkoutLog = Database["public"]["Tables"]["workout_logs"]["Row"];
 
-function check<T>(r: { data: T | null; error: { message: string } | null }): T {
+function check<T>(r: { data: T; error: { message: string } | null }): T {
   if (r.error) throw new Error("Không tải được dữ liệu. Kiểm tra kết nối mạng và thử lại.");
   return r.data as T;
 }
