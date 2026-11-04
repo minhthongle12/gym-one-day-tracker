@@ -17,7 +17,10 @@ export async function sendPushToAll(
   const result: PushResult = { total: 0, sent: 0, failed: 0, expired: 0 };
   const publicKey = process.env["VAPID_PUBLIC_KEY"];
   const privateKey = process.env["VAPID_PRIVATE_KEY"];
-  if (!publicKey || !privateKey) return result;
+  if (!publicKey || !privateKey) {
+    console.error("[Push] VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY is missing in environment variables.");
+    return result;
+  }
   const { data: subs } = await admin.from("push_subscriptions").select("*").eq("status", "active");
   result.total = subs?.length ?? 0;
   await Promise.all(

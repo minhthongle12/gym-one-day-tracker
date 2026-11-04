@@ -23,7 +23,9 @@ export const Route = createFileRoute("/cai-dat")({
   component: SettingsPage,
 });
 
-const VAPID_PUBLIC = "BM5LG8xjaQ0CjGunS6StJFl3UtTipMRUXkqySsPO2DRa8MEWTo8jG4P8Cx0Di2CyzrEOse9TVfFin1Ojl3s-1qg";
+const VAPID_PUBLIC =
+  import.meta.env["VITE_VAPID_PUBLIC_KEY"] ||
+  "BKyFo4CjG0isMqNa-cUSalKvYO7TBAoRXLw2lv-3JTbBvWd8ydGiCREn4unAijpdqGBwlc-as5d8pfphsP2k9RA";
 function b64ToBytes(s: string) {
   const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (s.length % 4)) % 4));
   return Uint8Array.from(b, (c) => c.charCodeAt(0));
@@ -60,7 +62,16 @@ function SettingsPage() {
       if (perm !== "granted") throw new Error("Bạn chưa cấp quyền thông báo.");
       const reg = await navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
       await navigator.serviceWorker.ready;
-      const sub = (await reg.pushManager.getSubscription()) ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) }));
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        try {
+          await existing.unsubscribe();
+        } catch (_) {}
+      }
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: b64ToBytes(VAPID_PUBLIC),
+      });
       const j = sub.toJSON();
       await save({ data: { endpoint: j.endpoint!, p256dh: j.keys!["p256dh"], auth: j.keys!["auth"] } });
       setStatus("Đã bật thông báo trên thiết bị này.");
