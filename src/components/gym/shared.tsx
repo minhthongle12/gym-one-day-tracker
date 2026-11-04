@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarClock, CheckCircle2, Clock, MapPin, XCircle, Ban, type LucideIcon } from "lucide-react";
+import { CalendarClock, CheckCircle2, Clock, MapPin, Share2, XCircle, Ban, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import pushImg from "@/assets/push.jpg";
 import pullImg from "@/assets/pull.jpg";
@@ -8,6 +8,7 @@ import { ATTENDANCE_LABEL, MEMBER_NAME, STATUS_LABEL, type Attendance, type Sess
 import type { Session } from "@/lib/queries";
 import { fmtDate, fmtTime, weekdayVN } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { ShareSessionDialog } from "@/components/gym/ShareSessionDialog";
 
 export const CATEGORY_IMAGE: Record<string, string> = { PUSH: pushImg, PULL: pullImg, LEGS: legsImg };
 
@@ -49,7 +50,7 @@ export function SessionCard({ s }: { s: Session }) {
     <Link
       to="/lich-tap/$id"
       params={{ id: s.id }}
-      className="block rounded-xl border bg-card p-4 transition-colors hover:border-primary/50"
+      className="block rounded-xl border bg-card p-4 transition-colors hover:border-primary/50 relative group"
     >
       <div className="flex items-start justify-between gap-2">
         <div>
@@ -58,7 +59,26 @@ export function SessionCard({ s }: { s: Session }) {
             {weekdayVN(s.session_date)}, {fmtDate(s.session_date)}
           </div>
         </div>
-        <StatusBadge status={s.status as SessionStatus} />
+        <div className="flex items-center gap-1.5">
+          <ShareSessionDialog
+            session={s}
+            trigger={
+              <button
+                type="button"
+                className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                title="Chia sẻ lịch tập qua Zalo"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <Share2 className="h-4 w-4" />
+                <span className="sr-only">Chia sẻ lịch tập</span>
+              </button>
+            }
+          />
+          <StatusBadge status={s.status as SessionStatus} />
+        </div>
       </div>
       <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
         <MapPin className="h-3.5 w-3.5" aria-hidden /> {s.location}

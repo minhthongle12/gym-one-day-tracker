@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, MapPin, Trash2 } from "lucide-react";
+import { ArrowLeft, MapPin, Share2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AttendanceBadge, Empty, errMsg, ErrorBox, LoadingBlock, StatusBadge } from "@/components/gym/shared";
+import { ShareSessionDialog } from "@/components/gym/ShareSessionDialog";
 import { MEMBER_NAME, MEMBERS, WEIGHT_CONVENTION, type Attendance, type SessionStatus } from "@/lib/domain";
 import { addWorkoutLog, cancelSession, completeSession, deleteSession, respondAttendance } from "@/lib/gym.functions";
 import { useMember } from "@/lib/member-context";
@@ -72,7 +73,20 @@ function SessionDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/lich-tap" className="inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" /> Lịch tập</Link>
+      <div className="flex items-center justify-between">
+        <Link to="/lich-tap" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Lịch tập
+        </Link>
+        <ShareSessionDialog
+          session={s}
+          trigger={
+            <Button variant="outline" size="sm" className="gap-1.5 border-primary/40 text-primary hover:bg-primary/10">
+              <Share2 className="h-4 w-4" />
+              <span>Chia sẻ Zalo</span>
+            </Button>
+          }
+        />
+      </div>
       <div className="rounded-2xl border bg-card p-5">
         <div className="flex items-start justify-between gap-2">
           <div>
