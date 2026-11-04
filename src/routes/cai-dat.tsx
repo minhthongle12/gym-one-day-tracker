@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { ChevronRight, Dumbbell } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,6 +101,30 @@ function SettingsPage() {
   return (
     <div className="space-y-4">
       <PageHeader title="Cài đặt" />
+
+      {/* Giáo án & Bài tập Push/Pull/Legs */}
+      <section className="rounded-2xl border-2 border-primary/30 bg-card p-4 transition-colors hover:border-primary/60 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Dumbbell className="h-4 w-4" />
+              </span>
+              <h2 className="text-lg font-bold uppercase">Giáo án & Bài tập (PPL)</h2>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tra cứu danh sách bài tập Push, Pull, Legs, video kỹ thuật và cập nhật mức tạ tập luyện.
+            </p>
+          </div>
+          <Button asChild className="shrink-0 font-bold gap-1">
+            <Link to="/bai-tap">
+              <span>Mở bài tập</span>
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </section>
+
       <section className="rounded-xl border bg-card p-4">
         <h2 className="text-lg font-bold uppercase">Người đang dùng</h2>
         <div className="mt-2 flex gap-2">

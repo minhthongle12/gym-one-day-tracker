@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 const NAV: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/", label: "Tổng quan", icon: Home },
   { to: "/lich-tap", label: "Lịch tập", icon: CalendarDays },
-  { to: "/bai-tap", label: "Bài tập", icon: Dumbbell },
   { to: "/tien-do", label: "Tiến độ", icon: LineChart },
   { to: "/cai-dat", label: "Cài đặt", icon: Settings },
 ];
@@ -139,8 +138,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Main Content */}
       <main className="mx-auto w-full max-w-5xl px-4 pb-28 pt-4 md:px-8 md:pb-10 md:pt-6">{children}</main>
 
-      {/* Streamlined Mobile Bottom Navigation (5 items) */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-sidebar/95 backdrop-blur md:hidden">
+      {/* Streamlined Mobile Bottom Navigation (4 items) */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-sidebar/95 backdrop-blur md:hidden">
         {NAV.map((n) => (
           <Link
             key={n.to}

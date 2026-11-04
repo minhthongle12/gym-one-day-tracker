@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Camera,
-  Calendar,
-  Clock,
+  CheckCircle2,
+  Columns,
   Download,
   Image as ImageIcon,
-  Plus,
   Scale,
   Sparkles,
   Trash2,
-  X,
-  Columns,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -24,13 +22,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Empty } from "@/components/gym/shared";
 import {
   addBodyDiaryPhoto,
-  compressImage,
+  compressImageWithStats,
   deleteBodyDiaryPhoto,
   getBodyDiaryPhotos,
   type BodyDiaryPhoto,
+  type CompressionInfo,
 } from "@/lib/body-diary-db";
 import { MEMBER_NAME } from "@/lib/domain";
 import { fmtDate, vnDateStr } from "@/lib/time";
@@ -42,6 +40,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
   // New photo modal state
   const [openAddModal, setOpenAddModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [compressionStats, setCompressionStats] = useState<CompressionInfo | null>(null);
   const [dateInput, setDateInput] = useState(vnDateStr());
   const [timeInput, setTimeInput] = useState("08:00");
   const [noteInput, setNoteInput] = useState("");
@@ -78,9 +77,11 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
 
   const handleImageFile = async (file: File) => {
     try {
-      toast.info("Đang xử lý ảnh...");
-      const compressed = await compressImage(file, 1080, 0.85);
-      setSelectedImage(compressed);
+      toast.info("Đang nén và tối ưu hóa ảnh...");
+      // Aggressive compression: max 960px, quality 0.78 (down to ~80-120KB)
+      const res = await compressImageWithStats(file, 960, 0.78);
+      setSelectedImage(res.dataUrl);
+      setCompressionStats(res);
 
       const now = new Date();
       const hh = String(now.getHours()).padStart(2, "0");
@@ -88,6 +89,10 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
       setTimeInput(`${hh}:${mm}`);
       setDateInput(vnDateStr());
       setOpenAddModal(true);
+
+      toast.success(
+        `Đã nén ảnh còn ${res.compressedSizeKB} KB (tiết kiệm ${res.savedPercent}% dung lượng)!`
+      );
     } catch (err) {
       console.error(err);
       toast.error("Không thể xử lý hình ảnh này.");
@@ -122,6 +127,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
       await fetchPhotos();
       setOpenAddModal(false);
       setSelectedImage(null);
+      setCompressionStats(null);
       setNoteInput("");
       setWeightInput("");
       toast.success("Đã lưu ảnh vóc dáng vào nhật ký Locket!");
@@ -155,50 +161,93 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
     toast.success("Đã tải ảnh về máy.");
   };
 
+  const today = vnDateStr();
+  const todayPhoto = photos.find((p) => p.date === today);
   const latestPhoto = photos[0];
   const photo1 = photos.find((p) => p.id === compareId1) || photos[photos.length - 1];
   const photo2 = photos.find((p) => p.id === compareId2) || photos[0];
 
   return (
-    <section className="rounded-2xl border bg-card p-5 space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-bold uppercase tracking-wide">
-              Locket Body Diary
+    <div className="space-y-6">
+      {/* Hidden File Inputs for 1-Tap Trigger */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="user"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      {/* HERO SECTION: ULTRA-PROMINENT LOCKET CAMERA TRIGGER */}
+      <div className="relative overflow-hidden rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/15 via-card to-background p-5 sm:p-6 shadow-2xl">
+        {/* Glow decoration */}
+        <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-primary/20 blur-3xl" />
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left space-y-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+              <Sparkles className="h-3.5 w-3.5" />
+              LOCKET BODY DIARY · {MEMBER_NAME[member].toUpperCase()}
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-foreground">
+              Selfie vóc dáng hôm nay
             </h2>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Chụp ảnh body trước gương mỗi ngày như Locket. Ảnh sẽ được tự động nén siêu nhẹ
+              giúp lưu trữ mượt mà không lo đầy bộ nhớ.
+            </p>
+
+            {todayPhoto && (
+              <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/20">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Hôm nay bạn đã chụp 1 ảnh ({todayPhoto.time})
+              </div>
+            )}
           </div>
-          <p className="text-xs text-muted-foreground">
-            Nhật ký selfie vóc dáng mỗi ngày của {MEMBER_NAME[member]}
-          </p>
+
+          {/* Action Trigger Buttons */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <Button
+              size="lg"
+              className="group relative h-14 w-full sm:w-auto px-6 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] gap-3"
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/20 group-hover:scale-110 transition-transform">
+                <Camera className="h-5 w-5" />
+              </span>
+              <span>{todayPhoto ? "Chụp thêm góc mới" : "Chụp selfie ngay"}</span>
+            </Button>
+
+            <Button
+              variant="secondary"
+              size="lg"
+              className="h-14 w-full sm:w-auto px-5 rounded-2xl border border-border/60 hover:bg-muted font-medium text-sm gap-2"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <ImageIcon className="h-4 w-4 text-muted-foreground" />
+              <span>Tải từ thư viện</span>
+            </Button>
+          </div>
         </div>
 
-        {/* Hidden File Inputs */}
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="user"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2">
+        {/* Compression guarantee badge */}
+        <div className="mt-4 pt-4 border-t border-border/40 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <Zap className="h-3.5 w-3.5 text-primary" />
+            Tự động nén & tối ưu hóa ảnh (&lt; 100 KB) khi lưu
+          </span>
           {photos.length >= 2 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
+            <button
+              type="button"
+              className="font-semibold text-primary hover:underline flex items-center gap-1"
               onClick={() => {
                 const oldest = photos[photos.length - 1];
                 const newest = photos[0];
@@ -209,42 +258,23 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                 }
               }}
             >
-              <Columns className="h-4 w-4" />
-              So sánh Trước / Sau
-            </Button>
+              <Columns className="h-3.5 w-3.5" />
+              So sánh Trước & Sau ({photos.length} ảnh)
+            </button>
           )}
-
-          <Button
-            size="sm"
-            className="gap-1.5 font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => cameraInputRef.current?.click()}
-          >
-            <Camera className="h-4 w-4" />
-            Selfie vóc dáng
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            className="gap-1.5"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <ImageIcon className="h-4 w-4" />
-            Tải ảnh lên
-          </Button>
         </div>
       </div>
 
-      {/* Featured Latest Photo (Locket Squircle Style) */}
+      {/* LATEST FEATURED PHOTO WIDGET */}
       {latestPhoto ? (
-        <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-b from-card to-background p-4 shadow-xl">
+        <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-lg">
           <div className="mb-3 flex items-center justify-between text-xs">
             <span className="font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5" />
-              Ảnh vóc dáng mới nhất
+              <Camera className="h-3.5 w-3.5" />
+              Ảnh vóc dáng gần nhất
             </span>
             <span className="text-muted-foreground">
-              {fmtDate(latestPhoto.date)} · {latestPhoto.time}
+              {fmtDate(latestPhoto.date)} lúc {latestPhoto.time}
             </span>
           </div>
 
@@ -258,20 +288,20 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
 
-            {/* Locket Overlay Badge */}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 flex flex-col justify-end">
+            {/* Locket Floating Pill Badges */}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 flex flex-col justify-end">
               <div className="flex items-center justify-between">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-primary/90 px-2.5 py-1 text-xs font-bold text-primary-foreground shadow">
+                  <span className="rounded-full bg-primary/95 px-3 py-1 text-xs font-bold text-primary-foreground shadow">
                     📅 {fmtDate(latestPhoto.date)}
                   </span>
                   {latestPhoto.weightKg && (
-                    <span className="rounded-full bg-black/60 backdrop-blur px-2.5 py-1 text-xs font-semibold text-white border border-white/20">
+                    <span className="rounded-full bg-black/70 backdrop-blur px-3 py-1 text-xs font-bold text-white border border-white/20">
                       ⚖️ {latestPhoto.weightKg} kg
                     </span>
                   )}
                 </div>
-                <span className="text-[11px] text-white/80 font-medium">Bấm để xem chi tiết</span>
+                <span className="text-xs text-white/80 font-medium">Bấm để xem chi tiết →</span>
               </div>
               {latestPhoto.note && (
                 <p className="mt-2 text-sm text-white font-medium drop-shadow line-clamp-2">
@@ -281,35 +311,14 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
             </div>
           </div>
         </div>
-      ) : (
-        <div className="rounded-3xl border border-dashed border-primary/30 bg-card/40 p-8 text-center space-y-3">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Camera className="h-7 w-7" />
-          </div>
-          <div>
-            <h3 className="font-bold uppercase text-lg">Chưa có ảnh selfie nào</h3>
-            <p className="mt-1 text-sm text-muted-foreground max-w-sm mx-auto">
-              Chụp ảnh body trước gương mỗi ngày như Locket để theo dõi sự lột xác vóc dáng của bạn!
-            </p>
-          </div>
-          <div className="pt-2 flex justify-center gap-2">
-            <Button
-              className="gap-2"
-              onClick={() => cameraInputRef.current?.click()}
-            >
-              <Camera className="h-4 w-4" />
-              Chụp ảnh selfie đầu tiên
-            </Button>
-          </div>
-        </div>
-      )}
+      ) : null}
 
-      {/* Diary Timeline Grid */}
-      {photos.length > 1 && (
-        <div className="space-y-3 pt-2">
+      {/* PHOTO TIMELINE / GRID */}
+      {photos.length > 0 ? (
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-              Nhật ký theo ngày ({photos.length} tấm)
+              Nhật ký vóc dáng ({photos.length} tấm)
             </h3>
             <span className="text-xs text-muted-foreground">Mới nhất xếp trước</span>
           </div>
@@ -318,7 +327,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
             {photos.map((p) => (
               <div
                 key={p.id}
-                className="group relative aspect-square overflow-hidden rounded-2xl border border-border/60 bg-muted/30 cursor-pointer shadow-sm hover:border-primary/60 transition-all"
+                className="group relative aspect-square overflow-hidden rounded-2xl border border-border/60 bg-muted/30 cursor-pointer shadow-sm hover:border-primary/60 transition-all hover:shadow-md"
                 onClick={() => setActivePhoto(p)}
               >
                 <img
@@ -327,24 +336,24 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                   className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2 text-left">
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-2 text-left">
                   <div className="text-[11px] font-bold text-white leading-tight">
                     {fmtDate(p.date)}
                   </div>
                   <div className="flex items-center justify-between text-[10px] text-white/80 mt-0.5">
                     <span>{p.time}</span>
-                    {p.weightKg && <span>{p.weightKg} kg</span>}
+                    {p.weightKg && <span className="text-primary font-semibold">{p.weightKg} kg</span>}
                   </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Add Photo Dialog */}
+      {/* ADD / CONFIRM PHOTO MODAL */}
       <Dialog open={openAddModal} onOpenChange={setOpenAddModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
           <form onSubmit={handleSavePhoto} className="space-y-4">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 uppercase">
@@ -352,17 +361,27 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                 Lưu ảnh vóc dáng vào Locket
               </DialogTitle>
               <DialogDescription>
-                Ảnh sẽ được gắn kèm ngày giờ để bạn xem lại quá trình thay đổi body qua từng ngày.
+                Ảnh đã được tự động nén siêu nhẹ để tiết kiệm dung lượng thiết bị.
               </DialogDescription>
             </DialogHeader>
 
             {selectedImage && (
-              <div className="relative aspect-[4/5] max-h-52 sm:max-h-72 w-full overflow-hidden rounded-2xl border bg-black shadow-inner">
+              <div className="relative aspect-[4/5] max-h-56 sm:max-h-72 w-full overflow-hidden rounded-2xl border border-primary/30 bg-black shadow-inner">
                 <img
                   src={selectedImage}
                   alt="Xem trước ảnh selfie"
                   className="h-full w-full object-contain"
                 />
+                {compressionStats && (
+                  <div className="absolute bottom-2 left-2 right-2 rounded-xl bg-black/75 backdrop-blur px-3 py-1.5 text-center text-xs text-white border border-white/10">
+                    <span className="text-emerald-400 font-bold">
+                      ⚡ Nén thành công: {compressionStats.compressedSizeKB} KB
+                    </span>{" "}
+                    <span className="text-white/70">
+                      (giảm {compressionStats.savedPercent}%, gốc ~{compressionStats.originalSizeKB} KB)
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -413,7 +432,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                 <Label htmlFor="photo-note">Ghi chú vóc dáng</Label>
                 <Input
                   id="photo-note"
-                  placeholder="vd: Sau buổi Push..."
+                  placeholder="vd: Sau buổi Push pump căng..."
                   value={noteInput}
                   onChange={(e) => setNoteInput(e.target.value)}
                   className="w-full"
@@ -421,7 +440,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
               </div>
             </div>
 
-            <DialogFooter className="mt-4">
+            <DialogFooter className="mt-4 pt-2">
               <Button
                 type="button"
                 variant="outline"
@@ -430,15 +449,16 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
               >
                 Hủy
               </Button>
-              <Button type="submit" disabled={saving}>
-                {saving ? "Đang lưu..." : "Lưu vào Locket"}
+              <Button type="submit" disabled={saving} className="font-bold gap-2">
+                <Camera className="h-4 w-4" />
+                {saving ? "Đang lưu..." : "Lưu vào Locket Body Diary"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Lightbox / View Photo Modal */}
+      {/* LIGHTBOX / FULL-SIZE PHOTO VIEWER */}
       {activePhoto && (
         <Dialog open={Boolean(activePhoto)} onOpenChange={(open) => !open && setActivePhoto(null)}>
           <DialogContent className="max-w-md sm:max-w-lg p-4 sm:p-6">
@@ -511,7 +531,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
         </Dialog>
       )}
 
-      {/* Before / After Comparison Modal */}
+      {/* BEFORE / AFTER COMPARISON MODAL */}
       <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -602,6 +622,6 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </section>
+    </div>
   );
 }

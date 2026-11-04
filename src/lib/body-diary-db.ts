@@ -9,6 +9,13 @@ export interface BodyDiaryPhoto {
   createdAt: string; // ISO
 }
 
+export interface CompressionInfo {
+  dataUrl: string;
+  originalSizeKB: number;
+  compressedSizeKB: number;
+  savedPercent: number;
+}
+
 const DB_NAME = "lpgb_body_diary_db";
 const DB_VERSION = 1;
 const STORE_NAME = "photos";
@@ -34,15 +41,29 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 /**
- * Resizes and compresses an image to keep it lightweight (~100-250KB)
- * while preserving great visual quality for body check-ins.
+ * Resizes and compresses an image to keep it lightweight (~70-120KB)
+ * while preserving great visual detail for body progress selfies.
  */
 export async function compressImage(
   fileOrDataUrl: File | Blob | string,
-  maxDimension = 1080,
-  quality = 0.82
+  maxDimension = 960,
+  quality = 0.78
 ): Promise<string> {
+  const result = await compressImageWithStats(fileOrDataUrl, maxDimension, quality);
+  return result.dataUrl;
+}
+
+export async function compressImageWithStats(
+  fileOrDataUrl: File | Blob | string,
+  maxDimension = 960,
+  quality = 0.78
+): Promise<CompressionInfo> {
   return new Promise((resolve, reject) => {
+    let originalSizeKB = 0;
+    if (typeof fileOrDataUrl !== "string") {
+      originalSizeKB = Math.round(fileOrDataUrl.size / 1024);
+    }
+
     const img = new Image();
     img.onload = () => {
       let width = img.naturalWidth || img.width;
@@ -69,7 +90,27 @@ export async function compressImage(
 
       ctx.drawImage(img, 0, 0, width, height);
       const dataUrl = canvas.toDataURL("image/jpeg", quality);
-      resolve(dataUrl);
+
+      // Estimate compressed size from base64 string length
+      const head = "data:image/jpeg;base64,";
+      const b64Len = dataUrl.length - head.length;
+      const compressedSizeKB = Math.max(1, Math.round((b64Len * 3) / 4 / 1024));
+
+      if (originalSizeKB === 0) {
+        originalSizeKB = Math.round(compressedSizeKB * 4);
+      }
+
+      const savedPercent = Math.max(
+        0,
+        Math.min(99, Math.round(((originalSizeKB - compressedSizeKB) / originalSizeKB) * 100))
+      );
+
+      resolve({
+        dataUrl,
+        originalSizeKB,
+        compressedSizeKB,
+        savedPercent,
+      });
     };
 
     img.onerror = (err) => reject(err);

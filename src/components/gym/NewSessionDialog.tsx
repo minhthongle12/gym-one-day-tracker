@@ -61,7 +61,7 @@ export function NewSessionButton({ label = "Tạo buổi tập" }: { label?: str
         <Plus className="h-4 w-4" /> {label}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="font-display text-2xl uppercase">Buổi tập mới</DialogTitle>
           </DialogHeader>
