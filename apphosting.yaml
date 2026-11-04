@@ -1,0 +1,32 @@
+# Settings for Firebase App Hosting
+# https://firebase.google.com/docs/app-hosting/configure
+
+runConfig:
+  minInstances: 0
+  maxInstances: 5
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: SUPABASE_URL
+    value: "https://c--cbe586ac-6f1c-40a5-9728-bbe1a4e1d552-prod.lovable.cloud"
+  - variable: SUPABASE_PUBLISHABLE_KEY
+    value: "sb_publishable_dSS_F9bU8mLaRcrRlPVJ-Q_RajC-QmS"
+  - variable: SUPABASE_PROJECT_ID
+    value: "yrfwolweyowupqgkfkdu"
+  - variable: VITE_SUPABASE_URL
+    value: "https://c--cbe586ac-6f1c-40a5-9728-bbe1a4e1d552-prod.lovable.cloud"
+  - variable: VITE_SUPABASE_PUBLISHABLE_KEY
+    value: "sb_publishable_dSS_F9bU8mLaRcrRlPVJ-Q_RajC-QmS"
+  - variable: VITE_SUPABASE_PROJECT_ID
+    value: "yrfwolweyowupqgkfkdu"
+
+  # Secrets (create these in Google Cloud Secret Manager / Firebase Console):
+  # - variable: SUPABASE_SERVICE_ROLE_KEY
+  #   secret: SUPABASE_SERVICE_ROLE_KEY
+  # - variable: VAPID_PUBLIC_KEY
+  #   secret: VAPID_PUBLIC_KEY
+  # - variable: VAPID_PRIVATE_KEY
+  #   secret: VAPID_PRIVATE_KEY
+
