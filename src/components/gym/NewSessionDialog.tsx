@@ -66,14 +66,14 @@ export function NewSessionButton({ label = "Tạo buổi tập" }: { label?: str
             <DialogTitle className="font-display text-2xl uppercase">Buổi tập mới</DialogTitle>
           </DialogHeader>
           <form onSubmit={submit} className="grid gap-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="grid gap-1.5">
                 <Label htmlFor="d">Ngày</Label>
-                <Input id="d" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+                <Input id="d" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full" />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="t">Giờ bắt đầu</Label>
-                <Input id="t" type="time" step={300} required value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
+                <Input id="t" type="time" step={300} required value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} className="w-full" />
               </div>
             </div>
             <div className="grid gap-1.5">

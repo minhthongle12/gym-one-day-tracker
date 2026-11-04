@@ -46,9 +46,17 @@ export async function generateSessionCardBlob(session: Session): Promise<Blob> {
   // Gym Tag
   ctx.font = "bold 15px 'Be Vietnam Pro', system-ui, sans-serif";
   ctx.fillStyle = "#a3e635";
-  ctx.letterSpacing = "2px";
+  if ("letterSpacing" in ctx) {
+    try {
+      (ctx as unknown as { letterSpacing: string }).letterSpacing = "2px";
+    } catch (_) {}
+  }
   ctx.fillText("CLB GYM LONG PHÚ", width / 2, 48);
-  ctx.letterSpacing = "0px";
+  if ("letterSpacing" in ctx) {
+    try {
+      (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+    } catch (_) {}
+  }
 
   // Subtitle
   ctx.font = "bold 13px 'Be Vietnam Pro', system-ui, sans-serif";
@@ -93,7 +101,11 @@ export async function generateSessionCardBlob(session: Session): Promise<Blob> {
   ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.roundRect(boxX, boxY, boxW, boxH, 12);
+  if (typeof ctx.roundRect === "function") {
+    ctx.roundRect(boxX, boxY, boxW, boxH, 12);
+  } else {
+    ctx.rect(boxX, boxY, boxW, boxH);
+  }
   ctx.fill();
   ctx.stroke();
 

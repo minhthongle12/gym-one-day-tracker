@@ -204,7 +204,7 @@ function TrainingLog({ sessionId }: { sessionId: string }) {
   return (
     <section className="space-y-4">
       <h2 className="text-2xl font-bold uppercase">Nhật ký tập luyện</h2>
-      <form onSubmit={submit} className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-6">
+      <form onSubmit={submit} className="grid grid-cols-1 gap-3 rounded-xl border bg-card p-4 sm:grid-cols-6">
         <div className="grid gap-1.5 sm:col-span-6">
           <Label>Bài tập ({MEMBER_NAME[member]})</Label>
           <Select value={f.exercise_id} onValueChange={(v) => setF({ ...f, exercise_id: v })}>
@@ -215,10 +215,22 @@ function TrainingLog({ sessionId }: { sessionId: string }) {
           </Select>
           {f.exercise_id && <p className="text-xs text-muted-foreground">{byId.get(f.exercise_id) && weightHint(byId.get(f.exercise_id)!.weight_type)}</p>}
         </div>
-        <div className="grid gap-1.5 sm:col-span-2"><Label htmlFor="w">Mức tạ (kg)</Label><Input id="w" type="number" step="0.5" min="0" required value={f.weight} onChange={(e) => setF({ ...f, weight: e.target.value })} /></div>
-        <div className="grid gap-1.5 sm:col-span-2"><Label htmlFor="s">Số hiệp</Label><Input id="s" type="number" min="1" required value={f.sets} onChange={(e) => setF({ ...f, sets: e.target.value })} /></div>
-        <div className="grid gap-1.5 sm:col-span-2"><Label htmlFor="r">Số lần</Label><Input id="r" type="number" min="1" required value={f.reps} onChange={(e) => setF({ ...f, reps: e.target.value })} /></div>
-        <div className="grid gap-1.5 sm:col-span-6"><Label htmlFor="no">Ghi chú</Label><Input id="no" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
+        <div className="grid gap-1.5 sm:col-span-2">
+          <Label htmlFor="w">Mức tạ (kg)</Label>
+          <Input id="w" type="number" inputMode="decimal" step="0.5" min="0" required value={f.weight} onChange={(e) => setF({ ...f, weight: e.target.value })} />
+        </div>
+        <div className="grid gap-1.5 sm:col-span-2">
+          <Label htmlFor="s">Số hiệp</Label>
+          <Input id="s" type="number" inputMode="numeric" min="1" required value={f.sets} onChange={(e) => setF({ ...f, sets: e.target.value })} />
+        </div>
+        <div className="grid gap-1.5 sm:col-span-2">
+          <Label htmlFor="r">Số lần</Label>
+          <Input id="r" type="number" inputMode="numeric" min="1" required value={f.reps} onChange={(e) => setF({ ...f, reps: e.target.value })} />
+        </div>
+        <div className="grid gap-1.5 sm:col-span-6">
+          <Label htmlFor="no">Ghi chú</Label>
+          <Input id="no" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} />
+        </div>
         <Button type="submit" disabled={saving} className="sm:col-span-6">{saving ? "Đang lưu..." : "Lưu vào nhật ký"}</Button>
       </form>
       {logs.data?.length ? (

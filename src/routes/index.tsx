@@ -57,24 +57,22 @@ function Dashboard() {
                 Bạn: <AttendanceBadge status={next[`${member}_status`] as Attendance} />
               </div>
             </Link>
-            <ShareSessionDialog
-              session={next}
-              trigger={
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5 border-primary/40 bg-card/80 text-primary hover:bg-primary/20 backdrop-blur shadow-sm shrink-0"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                >
-                  <Share2 className="h-4 w-4" />
-                  <span>Chia sẻ Zalo</span>
-                </Button>
-              }
-            />
+            <div className="relative z-10 shrink-0">
+              <ShareSessionDialog
+                session={next}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 border-primary/40 bg-card/80 text-primary hover:bg-primary/20 backdrop-blur shadow-sm"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Chia sẻ Zalo</span>
+                  </Button>
+                }
+              />
+            </div>
           </div>
         </div>
       ) : (

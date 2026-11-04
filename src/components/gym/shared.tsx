@@ -67,10 +67,6 @@ export function SessionCard({ s }: { s: Session }) {
                 type="button"
                 className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 title="Chia sẻ lịch tập qua Zalo"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
               >
                 <Share2 className="h-4 w-4" />
                 <span className="sr-only">Chia sẻ lịch tập</span>

@@ -357,7 +357,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
             </DialogHeader>
 
             {selectedImage && (
-              <div className="relative aspect-[4/5] max-h-72 w-full overflow-hidden rounded-2xl border bg-black shadow-inner">
+              <div className="relative aspect-[4/5] max-h-52 sm:max-h-72 w-full overflow-hidden rounded-2xl border bg-black shadow-inner">
                 <img
                   src={selectedImage}
                   alt="Xem trước ảnh selfie"
@@ -366,8 +366,8 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
                 <Label htmlFor="photo-date">Ngày chụp *</Label>
                 <Input
                   id="photo-date"
@@ -375,10 +375,11 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                   value={dateInput}
                   onChange={(e) => setDateInput(e.target.value)}
                   required
+                  className="w-full"
                 />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label htmlFor="photo-time">Giờ chụp *</Label>
                 <Input
                   id="photo-time"
@@ -386,32 +387,36 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                   value={timeInput}
                   onChange={(e) => setTimeInput(e.target.value)}
                   required
+                  className="w-full"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
                 <Label htmlFor="photo-weight">Cân nặng lúc chụp (kg)</Label>
                 <Input
                   id="photo-weight"
                   type="number"
+                  inputMode="decimal"
                   step="0.1"
                   min="30"
                   max="250"
                   placeholder="vd: 68.5"
                   value={weightInput}
                   onChange={(e) => setWeightInput(e.target.value)}
+                  className="w-full"
                 />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label htmlFor="photo-note">Ghi chú vóc dáng</Label>
                 <Input
                   id="photo-note"
                   placeholder="vd: Sau buổi Push..."
                   value={noteInput}
                   onChange={(e) => setNoteInput(e.target.value)}
+                  className="w-full"
                 />
               </div>
             </div>

@@ -65,7 +65,7 @@ describe("body weight tracker", () => {
   it("loads initial seed data when empty", () => {
     const weights = loadBodyWeights("thong");
     expect(weights.length).toBeGreaterThan(0);
-    expect(weights[0].member).toBe("thong");
+    expect(weights[0]?.member).toBe("thong");
   });
 
   it("saves a new weight entry and keeps it sorted by date", () => {

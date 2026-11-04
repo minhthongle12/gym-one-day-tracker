@@ -142,12 +142,34 @@ function WeightForm({ exerciseId, convention, assisted, correcting, onDone }: { 
   return (
     <form onSubmit={submit} className="grid grid-cols-2 gap-3 rounded-xl border bg-card p-4 sm:grid-cols-4">
       <p className="col-span-full text-xs text-muted-foreground">{convention}</p>
-      {!correcting && <div className="grid gap-1"><Label htmlFor="wd">Ngày</Label><Input id="wd" type="date" required value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} /></div>}
-      <div className="grid gap-1"><Label htmlFor="wk">{assisted ? "Mức hỗ trợ (kg)" : "Mức tạ (kg)"}</Label><Input id="wk" type="number" step="0.5" min="0" required value={f.weight} onChange={(e) => setF({ ...f, weight: e.target.value })} /></div>
-      {assisted && <div className="grid gap-1"><Label htmlFor="bw">Cân nặng cơ thể (kg)</Label><Input id="bw" type="number" step="0.1" value={f.bw} onChange={(e) => setF({ ...f, bw: e.target.value })} /></div>}
-      <div className="grid gap-1"><Label htmlFor="ws">Hiệp</Label><Input id="ws" type="number" min="1" value={f.sets} onChange={(e) => setF({ ...f, sets: e.target.value })} /></div>
-      <div className="grid gap-1"><Label htmlFor="wr">Lần</Label><Input id="wr" type="number" min="1" value={f.reps} onChange={(e) => setF({ ...f, reps: e.target.value })} /></div>
-      <div className="grid gap-1"><Label htmlFor="rpe">Độ khó (1–10)</Label><Input id="rpe" type="number" min="1" max="10" value={f.rpe} onChange={(e) => setF({ ...f, rpe: e.target.value })} /></div>
+      {!correcting && (
+        <div className="col-span-2 sm:col-span-1 grid gap-1">
+          <Label htmlFor="wd">Ngày</Label>
+          <Input id="wd" type="date" required value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} className="w-full" />
+        </div>
+      )}
+      <div className="grid gap-1">
+        <Label htmlFor="wk">{assisted ? "Mức hỗ trợ (kg)" : "Mức tạ (kg)"}</Label>
+        <Input id="wk" type="number" inputMode="decimal" step="0.5" min="0" required value={f.weight} onChange={(e) => setF({ ...f, weight: e.target.value })} />
+      </div>
+      {assisted && (
+        <div className="grid gap-1">
+          <Label htmlFor="bw">Cân nặng cơ thể (kg)</Label>
+          <Input id="bw" type="number" inputMode="decimal" step="0.1" value={f.bw} onChange={(e) => setF({ ...f, bw: e.target.value })} />
+        </div>
+      )}
+      <div className="grid gap-1">
+        <Label htmlFor="ws">Hiệp</Label>
+        <Input id="ws" type="number" inputMode="numeric" min="1" value={f.sets} onChange={(e) => setF({ ...f, sets: e.target.value })} />
+      </div>
+      <div className="grid gap-1">
+        <Label htmlFor="wr">Lần</Label>
+        <Input id="wr" type="number" inputMode="numeric" min="1" value={f.reps} onChange={(e) => setF({ ...f, reps: e.target.value })} />
+      </div>
+      <div className="grid gap-1">
+        <Label htmlFor="rpe">Độ khó (1–10)</Label>
+        <Input id="rpe" type="number" inputMode="numeric" min="1" max="10" value={f.rpe} onChange={(e) => setF({ ...f, rpe: e.target.value })} />
+      </div>
       <div className="col-span-full grid gap-1"><Label htmlFor="wn">Ghi chú</Label><Input id="wn" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
       <Button type="submit" disabled={saving} className="col-span-full">{saving ? "Đang lưu..." : correcting ? "Lưu bản sửa" : "Thêm mức tạ"}</Button>
     </form>

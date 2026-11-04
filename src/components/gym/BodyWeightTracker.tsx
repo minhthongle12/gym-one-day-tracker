@@ -122,13 +122,14 @@ export function BodyWeightTracker({ member }: { member: "thong" | "thuan" }) {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-3">
-                <div className="space-y-1">
+              <div className="space-y-3.5">
+                <div className="space-y-1.5">
                   <Label htmlFor="weight-input">Cân nặng (kg) *</Label>
                   <div className="relative">
                     <Input
                       id="weight-input"
                       type="number"
+                      inputMode="decimal"
                       step="0.1"
                       min="30"
                       max="250"
@@ -136,16 +137,15 @@ export function BodyWeightTracker({ member }: { member: "thong" | "thuan" }) {
                       value={weightInput}
                       onChange={(e) => setWeightInput(e.target.value)}
                       required
-                      autoFocus
                       className="pr-10 text-lg font-bold"
                     />
-                    <span className="absolute right-3 top-2.5 text-sm font-semibold text-muted-foreground">
+                    <span className="absolute right-3 top-2.5 text-sm font-semibold text-muted-foreground pointer-events-none">
                       kg
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <Label htmlFor="date-input">Ngày cân *</Label>
                   <Input
                     id="date-input"
@@ -153,16 +153,18 @@ export function BodyWeightTracker({ member }: { member: "thong" | "thuan" }) {
                     value={dateInput}
                     onChange={(e) => setDateInput(e.target.value)}
                     required
+                    className="w-full"
                   />
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <Label htmlFor="note-input">Ghi chú (tùy chọn)</Label>
                   <Input
                     id="note-input"
                     placeholder="vd: Sáng đói, sau khi tập,..."
                     value={noteInput}
                     onChange={(e) => setNoteInput(e.target.value)}
+                    className="w-full"
                   />
                 </div>
               </div>
