@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, CalendarDays, Dumbbell, MapPin } from "lucide-react";
+import { Bell, CalendarDays, Dumbbell, MapPin, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AttendanceBadge, Empty, ErrorBox, LoadingBlock, PageHeader, SessionCard } from "@/components/gym/shared";
 import { NewSessionButton } from "@/components/gym/NewSessionDialog";
+import { ShareSessionDialog } from "@/components/gym/ShareSessionDialog";
 import { completedStats, MEMBER_NAME, type Attendance } from "@/lib/domain";
 import { useMember } from "@/lib/member-context";
 import { notificationsQuery, sessionsQuery } from "@/lib/queries";
@@ -45,15 +46,37 @@ function Dashboard() {
       ) : sessions.error ? (
         <ErrorBox error={sessions.error} />
       ) : next ? (
-        <Link to="/lich-tap/$id" params={{ id: next.id }} className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/20 to-card p-5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Buổi tập tiếp theo</p>
-          <div className="mt-2 font-display text-5xl font-extrabold">{fmtTime(next.start_time)}</div>
-          <div className="text-muted-foreground">{fmtDate(next.session_date)}</div>
-          <div className="mt-2 flex items-center gap-1 text-sm"><MapPin className="h-4 w-4" /> {next.location}</div>
-          <div className="mt-3 flex items-center gap-2 text-sm">
-            Bạn: <AttendanceBadge status={next[`${member}_status`] as Attendance} />
+        <div className="relative rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/20 to-card p-5 transition-colors hover:border-primary/60">
+          <div className="flex items-start justify-between gap-3">
+            <Link to="/lich-tap/$id" params={{ id: next.id }} className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary">Buổi tập tiếp theo</p>
+              <div className="mt-2 font-display text-5xl font-extrabold">{fmtTime(next.start_time)}</div>
+              <div className="text-muted-foreground">{fmtDate(next.session_date)}</div>
+              <div className="mt-2 flex items-center gap-1 text-sm"><MapPin className="h-4 w-4" /> {next.location}</div>
+              <div className="mt-3 flex items-center gap-2 text-sm">
+                Bạn: <AttendanceBadge status={next[`${member}_status`] as Attendance} />
+              </div>
+            </Link>
+            <ShareSessionDialog
+              session={next}
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 border-primary/40 bg-card/80 text-primary hover:bg-primary/20 backdrop-blur shadow-sm shrink-0"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span>Chia sẻ Zalo</span>
+                </Button>
+              }
+            />
           </div>
-        </Link>
+        </div>
       ) : (
         <Empty title="Chưa có buổi tập sắp tới">Bấm “Tạo buổi tập” để lên lịch.</Empty>
       )}
