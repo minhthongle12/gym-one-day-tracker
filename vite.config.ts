@@ -13,6 +13,11 @@ export default defineConfig({
     server: { entry: "server" },
   },
   nitro: {
-    preset: process.env.NITRO_PRESET || "firebase-app-hosting",
+    preset: process.env.NITRO_PRESET || "vercel",
+    vercel: {
+      functions: {
+        runtime: "nodejs22.x",
+      },
+    },
   },
 });
