@@ -5,10 +5,8 @@ import {
   Columns,
   Download,
   Image as ImageIcon,
-  Scale,
   Sparkles,
   Trash2,
-  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -24,11 +22,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   addBodyDiaryPhoto,
-  compressImageWithStats,
+  compressImage,
   deleteBodyDiaryPhoto,
   getBodyDiaryPhotos,
   type BodyDiaryPhoto,
-  type CompressionInfo,
 } from "@/lib/body-diary-db";
 import { MEMBER_NAME } from "@/lib/domain";
 import { fmtDate, vnDateStr } from "@/lib/time";
@@ -40,7 +37,6 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
   // New photo modal state
   const [openAddModal, setOpenAddModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [compressionStats, setCompressionStats] = useState<CompressionInfo | null>(null);
   const [dateInput, setDateInput] = useState(vnDateStr());
   const [timeInput, setTimeInput] = useState("08:00");
   const [noteInput, setNoteInput] = useState("");
@@ -77,11 +73,8 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
 
   const handleImageFile = async (file: File) => {
     try {
-      toast.info("Đang nén và tối ưu hóa ảnh...");
-      // Aggressive compression: max 960px, quality 0.78 (down to ~80-120KB)
-      const res = await compressImageWithStats(file, 960, 0.78);
-      setSelectedImage(res.dataUrl);
-      setCompressionStats(res);
+      const dataUrl = await compressImage(file, 960, 0.78);
+      setSelectedImage(dataUrl);
 
       const now = new Date();
       const hh = String(now.getHours()).padStart(2, "0");
@@ -89,10 +82,6 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
       setTimeInput(`${hh}:${mm}`);
       setDateInput(vnDateStr());
       setOpenAddModal(true);
-
-      toast.success(
-        `Đã nén ảnh còn ${res.compressedSizeKB} KB (tiết kiệm ${res.savedPercent}% dung lượng)!`
-      );
     } catch (err) {
       console.error(err);
       toast.error("Không thể xử lý hình ảnh này.");
@@ -127,7 +116,6 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
       await fetchPhotos();
       setOpenAddModal(false);
       setSelectedImage(null);
-      setCompressionStats(null);
       setNoteInput("");
       setWeightInput("");
       toast.success("Đã lưu ảnh vóc dáng vào nhật ký Locket!");
@@ -201,8 +189,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
               Selfie vóc dáng hôm nay
             </h2>
             <p className="text-sm text-muted-foreground max-w-md">
-              Chụp ảnh body trước gương mỗi ngày như Locket. Ảnh sẽ được tự động nén siêu nhẹ
-              giúp lưu trữ mượt mà không lo đầy bộ nhớ.
+              Chụp ảnh body trước gương mỗi ngày như Locket để theo dõi sự thay đổi vóc dáng của bạn qua từng ngày.
             </p>
 
             {todayPhoto && (
@@ -238,16 +225,11 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
           </div>
         </div>
 
-        {/* Compression guarantee badge */}
-        <div className="mt-4 pt-4 border-t border-border/40 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5 text-primary" />
-            Tự động nén & tối ưu hóa ảnh (&lt; 100 KB) khi lưu
-          </span>
-          {photos.length >= 2 && (
+        {photos.length >= 2 && (
+          <div className="mt-4 pt-4 border-t border-border/40 flex items-center justify-end">
             <button
               type="button"
-              className="font-semibold text-primary hover:underline flex items-center gap-1"
+              className="font-semibold text-xs text-primary hover:underline flex items-center gap-1.5"
               onClick={() => {
                 const oldest = photos[photos.length - 1];
                 const newest = photos[0];
@@ -261,8 +243,8 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
               <Columns className="h-3.5 w-3.5" />
               So sánh Trước & Sau ({photos.length} ảnh)
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* LATEST FEATURED PHOTO WIDGET */}
@@ -361,7 +343,7 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                 Lưu ảnh vóc dáng vào Locket
               </DialogTitle>
               <DialogDescription>
-                Ảnh đã được tự động nén siêu nhẹ để tiết kiệm dung lượng thiết bị.
+                Ảnh sẽ được gắn kèm ngày giờ để bạn xem lại quá trình thay đổi body qua từng ngày.
               </DialogDescription>
             </DialogHeader>
 
@@ -372,16 +354,6 @@ export function LocketBodyDiary({ member }: { member: "thong" | "thuan" }) {
                   alt="Xem trước ảnh selfie"
                   className="h-full w-full object-contain"
                 />
-                {compressionStats && (
-                  <div className="absolute bottom-2 left-2 right-2 rounded-xl bg-black/75 backdrop-blur px-3 py-1.5 text-center text-xs text-white border border-white/10">
-                    <span className="text-emerald-400 font-bold">
-                      ⚡ Nén thành công: {compressionStats.compressedSizeKB} KB
-                    </span>{" "}
-                    <span className="text-white/70">
-                      (giảm {compressionStats.savedPercent}%, gốc ~{compressionStats.originalSizeKB} KB)
-                    </span>
-                  </div>
-                )}
               </div>
             )}
 
